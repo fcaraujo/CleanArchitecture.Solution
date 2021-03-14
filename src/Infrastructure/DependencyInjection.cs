@@ -1,8 +1,11 @@
-﻿using CleanArchitecture.Solution.Application.Common.Interfaces;
+﻿using Amazon.SQS;
+using CleanArchitecture.Solution.Application.Common.Interfaces;
 using CleanArchitecture.Solution.Infrastructure.Files;
 using CleanArchitecture.Solution.Infrastructure.Identity;
 using CleanArchitecture.Solution.Infrastructure.Persistence;
+using CleanArchitecture.Solution.Infrastructure.Queues;
 using CleanArchitecture.Solution.Infrastructure.Services;
+using LocalStack.Client.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +46,7 @@ namespace CleanArchitecture.Solution.Infrastructure
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddTransient<IIdentityService, IdentityService>();
             services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
+            services.AddTransient<IQueueService, QueueService>();
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
@@ -51,6 +55,19 @@ namespace CleanArchitecture.Solution.Infrastructure
             {
                 options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator"));
             });
+
+            // Amazon
+            // TODO: check integration
+            services.AddLocalStack(configuration);
+            //var awsOptions = configuration.GetAWSOptions("LocalStack");
+            var awsOptions = configuration.GetAWSOptions();
+            services.AddDefaultAWSOptions(awsOptions);
+            services.AddAwsService<IAmazonSQS>();
+            
+            //services.AddLocalStack(configuration);
+            //var config = configuration.GetAWSOptions();
+            //services.AddDefaultAWSOptions(config);
+            //services.AddAWSService<IAmazonSQS>();
 
             return services;
         }
