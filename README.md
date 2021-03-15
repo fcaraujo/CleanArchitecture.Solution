@@ -6,9 +6,11 @@ A .NET Clean Architecture Application
 Install/run LocalStack + AWS Local
 
 ## Running 
+After running a `docker-compose up` just double check the health check on http://localhost:4566.
+You can also see the available services under http://localhost:4566/health.
 
-http://localhost:4566
-http://localhost:4566/health
+### SQS
+Some snippets to check if the container is running properly:
 
 ```
 λ awslocal sqs create-queue --queue-name MyDevQueue
