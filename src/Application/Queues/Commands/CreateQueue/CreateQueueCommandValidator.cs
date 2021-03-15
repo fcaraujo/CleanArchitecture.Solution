@@ -8,14 +8,27 @@ namespace CleanArchitecture.Solution.Application.Queues.Commands.CreateQueue
     {
         public CreateQueueCommandValidator()
         {
+            // Name field
+            const string nameField = nameof(CreateQueueCommand.Name);
+            const int nameMaxCharacters = 80;
+
+            // Timeout field
+            const string timeoutField = nameof(CreateQueueCommand.VisibilityTimeouSeconds);
+            const int visibilityTimeoutSeconds = 60;
+
             RuleFor(v => v.Name)
-                .NotEmpty().WithMessage("Name is required.")
-                .MaximumLength(80).WithMessage("Name must not exceed 80 characters.")
-                .MustAsync(BeUniqueName).WithMessage("The specified name already exists.");
+                .NotEmpty()
+                    .WithMessage($"{nameField} is required.")
+                .MaximumLength(nameMaxCharacters)
+                    .WithMessage($"{nameField} must not exceed {nameMaxCharacters} characters.")
+                .MustAsync(BeUniqueName)
+                    .WithMessage($"The specified queue {nameField} already exists.");
 
             RuleFor(v => v.VisibilityTimeouSeconds)
-                .NotEmpty().WithMessage("Timeout is required.")
-                .LessThan(60).WithMessage("Timeout should be less than 1 minute.");
+                .NotEmpty()
+                    .WithMessage($"{timeoutField} is required.")
+                .LessThan(visibilityTimeoutSeconds)
+                    .WithMessage($"{timeoutField} should be less than {visibilityTimeoutSeconds} seconds.");
         }
 
         public async Task<bool> BeUniqueName(string name, CancellationToken cancellationToken)

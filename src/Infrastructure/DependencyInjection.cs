@@ -56,18 +56,11 @@ namespace CleanArchitecture.Solution.Infrastructure
                 options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator"));
             });
 
-            // Amazon
-            // TODO: check integration
+            // Amazon Services integrated with LocalStack
             services.AddLocalStack(configuration);
-            //var awsOptions = configuration.GetAWSOptions("LocalStack");
             var awsOptions = configuration.GetAWSOptions();
             services.AddDefaultAWSOptions(awsOptions);
             services.AddAwsService<IAmazonSQS>();
-            
-            //services.AddLocalStack(configuration);
-            //var config = configuration.GetAWSOptions();
-            //services.AddDefaultAWSOptions(config);
-            //services.AddAWSService<IAmazonSQS>();
 
             return services;
         }

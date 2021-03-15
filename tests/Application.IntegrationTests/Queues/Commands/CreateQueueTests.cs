@@ -47,10 +47,11 @@ namespace CleanArchitecture.Solution.Application.IntegrationTests.Queues.Command
         {
             // Arrange
             var name = new string('-', 80);
+            const int maxVisibilityTimeout = 60;
             var command = new CreateQueueCommand
             {
                 Name = name,
-                VisibilityTimeouSeconds = 61
+                VisibilityTimeouSeconds = maxVisibilityTimeout+1
             };
 
             // Act
@@ -60,9 +61,10 @@ namespace CleanArchitecture.Solution.Application.IntegrationTests.Queues.Command
             };
 
             // Assert
+            const string timeoutFieldName = nameof(CreateQueueCommand.VisibilityTimeouSeconds);
             action.Should().Throw<ValidationException>()
-                .And.Errors.Should().ContainKey(nameof(CreateQueueCommand.VisibilityTimeouSeconds))
-                .WhichValue.Should().BeEquivalentTo("Timeout should be less than 1 minute.");
+                .And.Errors.Should().ContainKey(timeoutFieldName)
+                .WhichValue.Should().BeEquivalentTo($"{timeoutFieldName} should be less than {maxVisibilityTimeout} seconds.");
         }
 
         [Test]
