@@ -2,6 +2,8 @@
 using CleanArchitecture.Solution.Infrastructure.Identity;
 using CleanArchitecture.Solution.Infrastructure.Persistence;
 using CleanArchitecture.Solution.WebUI;
+using DotNet.Testcontainers.Containers.Builders;
+using DotNet.Testcontainers.Containers.Modules;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -23,10 +25,13 @@ public class Testing
     private static IServiceScopeFactory _scopeFactory;
     private static Checkpoint _checkpoint;
     private static string _currentUserId;
+    private static TestcontainersContainer _localStackContainer;
 
     [OneTimeSetUp]
     public void RunBeforeAnyTests()
     {
+        StartLocalStackContainer();
+
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", true, true)
@@ -74,6 +79,21 @@ public class Testing
         var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
 
         context.Database.Migrate();
+    }
+
+    public void StartLocalStackContainer()
+    {
+        var localStackBuilder = new TestcontainersBuilder<TestcontainersContainer>()
+                .WithImage("localstack/localstack")
+                .WithCleanUp(true)
+                .WithEnvironment("DEFAULT_REGION", "ap-southeast-2")
+                .WithEnvironment("SERVICES", "sqs")
+                .WithEnvironment("DOCKER_HOST", "unix:///var/run/docker.sock")
+                .WithEnvironment("DEBUG", "1")
+                .WithPortBinding(4566, 4566);
+
+        _localStackContainer = localStackBuilder.Build();
+        _localStackContainer.StartAsync();
     }
 
     public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
@@ -170,5 +190,6 @@ public class Testing
     [OneTimeTearDown]
     public void RunAfterAnyTests()
     {
+        _localStackContainer?.StopAsync();
     }
 }

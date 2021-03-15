@@ -76,10 +76,10 @@ namespace CleanArchitecture.Solution.Application.IntegrationTests.Queues.Command
             };
 
             // Act
-            var url = await SendAsync(command);
+            var queueUrl = await SendAsync(command);
 
             // Assert
-            url.Should().NotBeEmpty();
+            queueUrl.Should().NotBeEmpty();
         }
 
         [Test]

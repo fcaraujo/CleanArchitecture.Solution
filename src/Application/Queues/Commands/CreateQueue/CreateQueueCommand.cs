@@ -22,9 +22,9 @@ namespace CleanArchitecture.Solution.Application.Queues.Commands.CreateQueue
 
         public async Task<string> Handle(CreateQueueCommand request, CancellationToken cancellationToken)
         {
-            var res = await _queueService.CreateQueueAsync(request.Name, request.VisibilityTimeouSeconds, cancellationToken);
+            var queueUrl = await _queueService.CreateQueueAsync(request.Name, request.VisibilityTimeouSeconds, cancellationToken);
 
-            return res;
+            return queueUrl;
         }
     }
 }
